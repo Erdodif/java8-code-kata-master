@@ -1,0 +1,3 @@
+# Project exclude paths
+/java8-code-kata-master/common-test-tool/target/
+/java8-code-kata-master/stream-api/target/
