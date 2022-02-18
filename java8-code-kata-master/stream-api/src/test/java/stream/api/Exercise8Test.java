@@ -54,23 +54,24 @@ public class Exercise8Test extends ClassicOnlineStore {
          * Items that are not on sale can be counted as 0 money cost.
          * If there is several same items with different prices, customer can choose the cheapest one.
          */
-        //List<Item> onSale = shopStream.flatMap(shop -> shop.getItemList().stream()).distinct().collect(Collectors.toList());
         List<Item> onSale = shopStream.flatMap(shop -> shop.getItemList()
                 .stream())
                 .sorted(Comparator.comparing(Item::getPrice))
                 .collect(Collectors.toList());
-        //TODO a gyűrteményből az azonos nevűekből az olcsóbbat kéne eltárolni
-        /*List<Item> onSale = shopStream.flatMap(shop -> shop.getItemList()
-                .stream())
-                .sorted(Comparator.comparing(Item::getPrice))
-                .collect(Collectors.toCollection(LinkedHashSet::new))
+        /**
+         * Ez a változó nem volt része a feladatnak, viszont az átláthatóság miatt hoztam létre
+         */
+        Predicate<Item> cheapestItem = item -> onSale
                 .stream()
-                .collect(Collectors.toList());*/
+                .filter(item2-> item2.getName().equals(item.getName()))
+                .min(Comparator.comparingInt(Item::getPrice))
+                .get() == item;
         Predicate<Customer> havingEnoughMoney = customer -> onSale
                 .stream()
                 .filter(item -> customer.getWantToBuy()
                         .stream()
                         .anyMatch(item2 -> item2.getName().equals(item.getName())))
+                .filter(cheapestItem)
                 .mapToInt(Item::getPrice).sum() <= customer.getBudget();
         List<String> customerNameList = customerStream.filter(havingEnoughMoney).map(Customer::getName).collect(Collectors.toList());
 
